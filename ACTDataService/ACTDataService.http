@@ -1,0 +1,6 @@
+@ACTDataService_HostAddress = http://localhost:5258
+
+GET {{ACTDataService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
