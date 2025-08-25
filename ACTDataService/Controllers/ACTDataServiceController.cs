@@ -22,5 +22,14 @@ namespace ACTDataService.Controllers
             var users = await _userService.GetAllUsersAsync();
             return Ok(users); // ASP.NET Core will automatically serialize to JSON
         }
+
+        [HttpGet("GetEventLogCanteen")]
+        public async Task<IActionResult> GetEventLogCanteen(string startDate, string finishDate)
+        {
+            //var users = await _userService.GetAllUsersAsync();
+
+            var eventLog = await _userService.GetEventLog(startDate, finishDate);
+            return Ok(eventLog); // ASP.NET Core will automatically serialize to JSON
+        }
     }
 }

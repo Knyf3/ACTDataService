@@ -8,5 +8,6 @@ namespace ACTDataService.Services
     {
         //Task<IEnumerable<Models.UserModel>> GetAllUsersAsync();
         Task<ObservableCollection<UserFileModel>> GetAllUsersAsync();
+        Task<ObservableCollection<EventLogModel>> GetEventLog(string startDate, string finishDate);
     }
 }

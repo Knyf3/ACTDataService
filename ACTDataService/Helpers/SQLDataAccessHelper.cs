@@ -1,6 +1,7 @@
 ﻿using ACTDataService.Models;
 using Microsoft.Data.SqlClient;
 using Newtonsoft.Json.Linq;
+using Serilog;
 using System.Collections.ObjectModel;
 
 namespace ACTDataService.Helpers
@@ -174,5 +175,67 @@ namespace ACTDataService.Helpers
                 return userLists;
             }
         }
+
+        public async Task<ObservableCollection<EventLogModel>> GetLogReport(string StartDate, string EndDate)
+        {
+            // Replace .ToDateTime() with DateTime.Parse
+            DateTime _startDate = DateTime.Parse(StartDate);
+            DateTime _endDate = DateTime.Parse(EndDate) + new TimeSpan(23, 59, 59);
+
+            string p1 = _startDate.ToString("yyyy-MM-dd HH:mm:ss");
+            string p2 = _endDate.ToString("yyyy-MM-dd HH:mm:ss");
+
+
+            sqlCommand = $"Select EventID, [When], TimeStamp, Event, Controller, Door, EventData, OriginalForeName, OriginalSurname from Log " +
+                $"where [When] between \'{p1}\' and \'{p2}\' " +
+                $"and ((Event=50) or (Event=52)) " +
+                //$"and (Door in (" + doorInList + ") or Door in (" + doorOutList + ")) " +
+                //$"and (Door = 1) " + // and (EventData=9)
+                //$" and ((Door in (1)) or (Door in (1))) " +  //$"and (Door = 1) " + // and (EventData=9)
+                $"Order by [When]";
+
+            ObservableCollection<EventLogModel> output = new ObservableCollection<EventLogModel>();
+
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                try
+                {
+                    SqlCommand cmd = new SqlCommand(sqlCommand, conn);
+
+
+                    await conn.OpenAsync();
+
+                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                    {
+                        output.Clear();
+
+                        while (await reader.ReadAsync())
+                        {
+                            EventLogModel row = new EventLogModel()
+                            {
+                                EventID = Convert.ToInt64(reader[0]),
+                                When = (DateTime)reader[1],
+                                TimeStamp = Convert.ToInt64(reader[2]),
+                                Event = Convert.ToInt32(reader[3]),
+                                Controller = Convert.ToInt32(reader[4]),
+                                Door = Convert.ToInt32(reader[5]),
+                                EventData = Convert.ToInt64(reader[6]),
+                                OriginalForename = reader[7]?.ToString(),
+                                OriginalSurname = reader[8]?.ToString()
+                            };
+
+                            output.Add(row);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, "Error in GetLogReport");
+                }
+            }
+            return output;
+        }
     }
+
+    
 }
