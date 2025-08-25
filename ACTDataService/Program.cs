@@ -18,27 +18,33 @@ namespace ACTDataService
 
         public static void Main(string[] args)
         {
-            FileSettings = "Settings/Settings.json";
-            SettingsConfig = JObject.Parse(System.IO.File.ReadAllText(FileSettings));
-            string url = $"http://{SettingsConfig["ServerAddress"]?.ToString() ?? "localhost"}";
+            string exeDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string sharedSettingsPath = Path.Combine(exeDirectory, @"Settings\Settings.json");
+            sharedSettingsPath = Path.GetFullPath(sharedSettingsPath);
+
+
+            //FileSettings = "Settings/Settings.json";
+           
 
             // Configure Serilog to log to a file
+            string logPath = Path.Combine(exeDirectory, "Logs", "log-.txt");
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console()
                 .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
                 .CreateLogger();
 
 
-            //SQLDataAccessHelper sqlda = new SQLDataAccessHelper(FileSettings);
+            //SQLDataAccessHelper sqlda = new SQLDataAccessHelper(s);
 
             try
             {
                 Log.Information("Starting web host");
 
-
+                SettingsConfig = JObject.Parse(System.IO.File.ReadAllText(sharedSettingsPath));
+                string url = $"http://{SettingsConfig["ServerAddress"]?.ToString() ?? "localhost"}";
 
                 var builder = WebApplication.CreateBuilder(args);
-
+                builder.Host.UseWindowsService();
                 builder.Host.UseSerilog();
                 builder.WebHost.UseUrls(url);
 
@@ -57,7 +63,7 @@ namespace ACTDataService
 
                 //Register Services
                 builder.Services.AddScoped<IUserService>(provider =>
-                    new UserService(FileSettings));
+                    new UserService(sharedSettingsPath));
 
                 var app = builder.Build();
 
