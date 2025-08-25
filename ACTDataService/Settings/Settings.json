@@ -1,0 +1,19 @@
+{
+  "ServerAddress": "0.0.0.0:5050",
+  "Server": "SURFACE3\\SQLEXPRESS",
+  "Database": "ACTProDB",
+  "IntegratedSecurity": "true",
+  "UserID": "",
+  "Password": "",
+  "TargetServer": "SURFACE3\\SQLEXPRESS",
+  "TargetDatabase": "PhotoDB",
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "AllowedHosts": "*"
+
+}

@@ -1,0 +1,12 @@
+﻿using ACTDataService.Helpers;
+using ACTDataService.Models;
+using System.Collections.ObjectModel;
+
+namespace ACTDataService.Services
+{
+    public interface IUserService
+    {
+        //Task<IEnumerable<Models.UserModel>> GetAllUsersAsync();
+        Task<ObservableCollection<UserFileModel>> GetAllUsersAsync();
+    }
+}
