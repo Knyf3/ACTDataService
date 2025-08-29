@@ -235,6 +235,108 @@ namespace ACTDataService.Helpers
             }
             return output;
         }
+
+        public async Task<ObservableCollection<UserModel>> GetUserswithGroup()
+        {
+
+
+            ObservableCollection<UserModel> userLists = new ObservableCollection<UserModel>();
+           
+            sqlCommand = $"Select  UserNumber, [Group], Forename, Surname, UserField1, UserField2, CardNo from Users";
+
+            UserModel output = new UserModel();
+
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                try
+                {
+                    await conn.OpenAsync(); // Use async method to open connection
+                    SqlCommand cmd = new SqlCommand(sqlCommand, conn);
+                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            output = new UserModel()
+                            {
+                                UserNumber = reader[0].ToString(),
+                                //CardNumber = Int32.Parse(reader[1].ToString()),
+                                UserGroup = await GetGroupNameAsync(reader[1].ToString()),
+                                Forename = reader[2].ToString(),
+                                Surname = reader[3].ToString(),
+                                UserField1 = reader[4].ToString(),
+                                UserField2 = reader[5].ToString(),
+                                CardNo = reader[6].ToString()
+                                // Photo = reader[4] as byte[]
+                            };
+                            userLists.Add(output);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                return userLists;
+            }
+            //foreach (UserModel user in userLists)
+            //{
+            //    sqlCommand = $"Select UserNumber, [Group], UserField1, UserField2, Forename, Surname from Users where UserNumber = {user}";
+            //    UserModel output = new UserModel();
+            //    using (SqlConnection conn = new SqlConnection(connString))
+            //    {
+            //        try
+            //        {
+            //            SqlCommand cmd = new SqlCommand(sqlCommand, conn);
+            //            await conn.OpenAsync();
+            //            using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+            //            {
+            //                while (await reader.ReadAsync())
+            //                {
+            //                    output.UserNumber = reader[0].ToString();
+            //                    output.UserGroup = await GetGroupNameAsync(reader[1].ToString());
+            //                    output.UserField1 = reader[2].ToString();
+            //                    output.UserField2 = reader[3].ToString();
+            //                    output.Forename = reader[4].ToString();
+            //                    output.Surname = reader[5].ToString();
+            //                }
+            //            }
+            //            userLists.Add(output);
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //            Log.Error(ex.Message);
+            //        }
+            //    }
+            //}
+            //return userLists;
+
+        }
+
+        public async Task<string> GetGroupNameAsync(string group)
+        {
+            string groupName = "";
+            sqlCommand = $"Select Name from UserGroups where [Group No] = {group}";
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                try
+                {
+                    SqlCommand cmd = new SqlCommand(sqlCommand, conn);
+                    await conn.OpenAsync();
+                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            groupName = reader[0].ToString();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex.Message);
+                }
+            }
+            return groupName;
+        }
     }
 
     

@@ -32,5 +32,11 @@ namespace ACTDataService.Services
             var eventLogList = await _sqlda.GetLogReport(startDate, finishDate);
             return eventLogList;
         }
+
+        public async Task<ObservableCollection<UserModel>> GetUsersWithGroup()
+        {
+            var users = await _sqlda.GetUserswithGroup();
+            return users;
+        }
     }
 }
